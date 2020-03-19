@@ -8,7 +8,6 @@ from ast import literal_eval
 # Load world
 world = World()
 
-
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
@@ -26,8 +25,40 @@ world.print_rooms()
 player = Player(world.starting_room)
 
 # Fill this out with directions to walk
-# traversal_path = ['n', 'n']
-traversal_path = []
+# traversalPath = ['n', 'n']
+
+
+def runTraversal(graph):
+    maze = []
+    rooms = []
+    visited = set()
+    maze.append(0)
+
+    while len(visited) < len(graph):
+        currRoom = maze[-1]
+        visited.add(currRoom)
+        connections = graph[currRoom][1]
+        availConnections = []
+
+        for checked, unchecked in connections.items():
+            if unchecked not in visited:
+                availConnections.append(unchecked)
+
+        if len(availConnections) > 0:
+            room = availConnections[0]
+            maze.append(availConnections[0])
+        else:
+            room = maze[-2]
+            maze.pop()
+
+        for prevRoom, exits in connections.items():
+            if exits == room:
+                rooms.append(prevRoom)
+
+    return rooms
+
+
+traversalPath = runTraversal(room_graph)
 
 
 
@@ -36,12 +67,12 @@ visited_rooms = set()
 player.current_room = world.starting_room
 visited_rooms.add(player.current_room)
 
-for move in traversal_path:
+for move in traversalPath:
     player.travel(move)
     visited_rooms.add(player.current_room)
 
 if len(visited_rooms) == len(room_graph):
-    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+    print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
 else:
     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
